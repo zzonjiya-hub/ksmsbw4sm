@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="description" content="KSMS 블록세상 — 비행 모드 싱글플레이. 네트워크 없이 혼자 즐기는 3D 복셀 샌드박스.">
+    <title>KSMS 블록세상 v4</title>
+    <link rel="icon" type="image/x-icon" href="./assets/icon.ico">
+    <script src="./libs/tailwind.js"></script>
+    <link rel="stylesheet" href="./libs/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="./css/play.css">
+</head>
+<body class="text-white" style="background-color: #8bcbf9 !important;">
+
+<!-- 알림 토스트 -->
+<div id="toast" class="fixed bottom-28 left-1/2 transform -translate-x-1/2 z-50 bg-black/90 text-white text-sm font-bold px-5 py-2.5 rounded-xl transition-opacity duration-200 opacity-0 pointer-events-none max-w-[90vw] shadow-xl border border-black"><span id="toast-text" class="leading-snug">알림</span></div>
+
+<!-- 안내 모달 (확인 1개 버튼) -->
+<div id="notice-modal" class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/75 px-4">
+    <div class="bg-[#111111] border border-slate-700 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+        <div class="px-6 pt-6 pb-3 flex items-center">
+            <h3 id="notice-title" class="text-lg font-black text-white">안내</h3>
+        </div>
+        <div id="notice-message" class="px-6 py-1 text-sm text-slate-200 font-bold leading-relaxed"></div>
+        <div class="px-6 pb-6 pt-5 flex justify-end">
+            <button id="notice-ok-btn" class="px-6 py-2 rounded-lg bg-[#2b2b2b] hover:bg-[#383838] text-white font-black text-sm border border-slate-700 transition-colors">확인</button>
+        </div>
+    </div>
+</div>
+
+<!-- 확인 모달 (확인/취소 2개 버튼) -->
+<div id="confirm-modal" class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/75 px-4">
+    <div class="bg-[#111111] border border-slate-700 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+        <div class="px-6 pt-6 pb-3 flex items-center">
+            <h3 id="confirm-title" class="text-lg font-black text-white">확인</h3>
+        </div>
+        <div id="confirm-message" class="px-6 py-1 text-sm text-slate-200 font-bold leading-relaxed"></div>
+        <div class="px-6 pb-6 pt-5 flex justify-end gap-2">
+            <button id="confirm-no-btn" class="px-6 py-2 rounded-lg bg-[#2b2b2b] hover:bg-[#383838] text-white font-black text-sm border border-slate-700 transition-colors">아니오</button>
+            <button id="confirm-yes-btn" class="px-6 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-black text-sm transition-colors">예</button>
+        </div>
+    </div>
+</div>
+
+<!-- 첫 화면: 이름 + 의상 선택 -->
+<div id="setup-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-[#8bcbf9] px-4" style="background-color: #8bcbf9 !important;">
+    <div class="bg-[#59893d] border-[6px] border-[#466d2e] p-8 pb-4 rounded-2xl max-w-md w-full text-center shadow-[0_25px_80px_rgba(0,0,0,0.65)] relative">
+        <div class="flex justify-start mb-7 gap-3 items-center">
+            <img src="./assets/icon.png" width="55" height="55" class="border-4 border-[#2b471b]" style="border-radius: 18%;" alt="KSMS 아이콘">
+            <h1 class="text-2xl md:text-[34px] font-black tracking-wider text-yellow-300" style="-webkit-text-stroke: 8px #2b471b; paint-order: stroke fill;"><span style="color: #ffffff;">KSMS</span> 블록세상 <span style="color: #59893d;">v4</span></h1>
+        </div>
+
+        <div class="mb-4 relative">
+            <div id="outfit-picker" class="grid grid-cols-6 gap-2"></div>
+        </div>
+
+        <div class="mb-6 relative">
+            <input type="text" id="username-input" placeholder="이름을 적어주세요" maxlength="12" autocomplete="off" autofocus
+                   class="w-full bg-[#3d6328] border-4 border-[#2b471b] rounded-lg px-4 py-3 text-white text-lg font-bold text-center focus:outline-none focus:border-yellow-400 placeholder-white/60 transition-all shadow-inner">
+            <p id="error-msg" class="text-rose-200 text-xs font-bold mt-2 hidden"><i class="fa-solid fa-triangle-exclamation mr-1"></i>이름은 한글·영문·숫자만 입력해 주세요!</p>
+        </div>
+
+        <button id="start-btn"
+                class="w-full bg-[#fcd34d] hover:bg-[#fbbf24] active:bg-[#f59e0b] text-orange-600 font-extrabold text-xl py-3.5 rounded-lg border-b-4 border-[#d97706] shadow-md active:border-b-0 active:translate-y-1 transition-all" style="border-top: 4px solid #f97316; border-left: 4px solid #f97316; border-right: 4px solid #ef4444; border-bottom: 4px solid #ef4444;">
+            블록세상 시작하기
+        </button>
+        <p class="text-center text-[11px] text-white/70 font-bold mt-4">© 2026 KSMS. All rights reserved.</p>
+    </div>
+</div>
+
+<div id="game-container" class="relative hidden" style="width: 100vw !important; height: 100vh !important; position: relative !important; background-color: #8bcbf9 !important;">
+    <!-- 상단 바 -->
+    <div id="top-bar" class="absolute top-0 left-0 right-0 h-12 bg-[#210508]/90 border-b border-rose-900/40 flex items-center justify-between px-4 z-40 backdrop-blur-sm">
+        <!-- 왼쪽: 타이틀 + 화질 + 줌 -->
+        <div class="flex items-center gap-4 flex-shrink-0">
+            <div class="text-white font-black tracking-wider text-sm flex items-center gap-2">
+                <img src="./assets/icon.ico" width="22" height="22" class="rounded-sm flex-shrink-0" style="image-rendering: pixelated;" alt="KSMS 아이콘">
+                <span class="text-white font-black tracking-wider text-xs sm:text-sm whitespace-nowrap">KSMS 블록세상 v4 싱글플레이</span>
+            </div>
+            <button id="quality-btn" class="h-8 px-2 rounded bg-rose-950/40 hover:bg-rose-900/60 flex items-center justify-center gap-1 border border-rose-900/30 text-rose-200 transition-colors shadow-md pointer-events-auto" title="화질 조절: 클릭할 때마다 고 → 중 → 저 순환">
+                <i id="quality-icon" class="fa-solid fa-gauge-high text-sm"></i>
+                <span id="quality-label" class="text-xs font-bold">고</span>
+            </button>
+            <div class="flex items-center gap-1.5 bg-rose-950/40 border border-rose-900/30 rounded-full px-3 py-1 pointer-events-auto text-rose-300">
+                <i class="fa-solid fa-minus text-xs" title="축소"></i>
+                <input id="zoom-slider" type="range" min="4" max="15" step="0.1" value="9.5" class="w-16 sm:w-28 accent-rose-500 bg-rose-950 h-1 rounded-lg appearance-none cursor-pointer">
+                <i class="fa-solid fa-plus text-xs" title="확대"></i>
+            </div>
+        </div>
+
+        <!-- 중앙: 1인칭/3인칭 전환 -->
+        <div class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center gap-2">
+            <button id="view-toggle-btn" class="w-8 h-8 rounded bg-rose-950/40 hover:bg-rose-900/60 flex items-center justify-center border border-rose-900/30 text-rose-200 transition-colors shadow-md pointer-events-auto" title="1인칭/3인칭 시점 전환">
+                <i id="view-toggle-icon" class="fa-solid fa-eye text-sm"></i>
+            </button>
+        </div>
+
+        <!-- 오른쪽: 저장/불러오기/새 맵 + 캡처/전체화면 -->
+        <div class="flex items-center gap-2 flex-shrink-0">
+            <input type="file" id="file-input" class="hidden" accept=".블록세상,.ksms">
+            <button id="save-btn" class="w-8 h-8 rounded bg-rose-950/40 hover:bg-rose-900/60 flex items-center justify-center border border-rose-900/30 text-rose-200 transition-colors pointer-events-auto shadow-md" title="맵 저장 (.블록세상 파일로 내려받기)">
+                <i class="fa-solid fa-download text-sm"></i>
+            </button>
+            <button id="load-btn" class="w-8 h-8 rounded bg-rose-950/40 hover:bg-rose-900/60 flex items-center justify-center border border-rose-900/30 text-rose-200 transition-colors pointer-events-auto shadow-md" title="맵 불러오기 (.블록세상 파일)">
+                <i class="fa-solid fa-folder-open text-sm"></i>
+            </button>
+            <button id="reset-btn" class="w-8 h-8 rounded bg-rose-950/40 hover:bg-rose-900/60 flex items-center justify-center border border-rose-900/30 text-rose-200 transition-colors pointer-events-auto shadow-md" title="새 맵 시작 (지금 만든 맵이 사라집니다)">
+                <i class="fa-solid fa-file-circle-plus text-sm"></i>
+            </button>
+            <button id="capture-btn" class="w-8 h-8 rounded bg-rose-950/40 hover:bg-rose-900/60 flex items-center justify-center border border-rose-900/30 text-rose-200 transition-colors shadow-md pointer-events-auto" title="화면 캡처 (PNG 내려받기)">
+                <i class="fa-solid fa-camera text-sm"></i>
+            </button>
+            <button id="photo-btn" class="w-8 h-8 rounded bg-rose-950/40 hover:bg-rose-900/60 flex items-center justify-center border border-rose-900/30 text-rose-200 transition-colors shadow-md pointer-events-auto" title="새 창에서 이미지 열기">
+                <i class="fa-solid fa-image text-sm"></i>
+            </button>
+            <button id="fullscreen-btn" class="w-8 h-8 rounded bg-rose-950/40 hover:bg-rose-900/60 flex items-center justify-center border border-rose-900/30 text-rose-200 transition-colors shadow-md pointer-events-auto" title="전체화면">
+                <i class="fa-solid fa-expand text-sm"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- WebGL Canvas -->
+    <canvas id="game-canvas" class="absolute inset-0 w-full h-full block" style="background-color: #8bcbf9 !important;"></canvas>
+
+    <!-- 좌하단 모바일 가상 조이스틱 -->
+    <div class="absolute bottom-[33%] left-12 z-20 pointer-events-auto block touch-none">
+        <div id="mobile-joystick" class="w-32 h-32 bg-slate-850/40 border-4 border-slate-600/60 rounded-xl relative flex items-center justify-center backdrop-blur-xs shadow-xl">
+            <div class="absolute w-12 h-12 bg-slate-500/30 border border-slate-400/40 rounded-md"></div>
+            <div id="joystick-knob" class="w-14 h-14 bg-slate-300/65 border-2 border-white/80 rounded-lg absolute transition-all duration-75 shadow-lg flex items-center justify-center">
+                <div class="w-6 h-6 bg-slate-500/80 rounded-xs"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 우하단 모바일 컨트롤 (비행 토글 + 점프 + 기어가기) -->
+    <div class="absolute bottom-[33%] right-12 z-20 flex flex-col gap-3.5 items-center touch-none pointer-events-auto">
+        <button id="flight-toggle-btn" class="w-16 h-8 rounded-xl border-4 border-slate-600/60 bg-slate-850/40 shadow-lg relative transition-colors duration-150 select-none flex" title="비행/걷기 전환">
+            <span id="flight-toggle-knob" class="absolute left-[2px] top-[2px] h-5 w-5 rounded-full bg-white/80 shadow-md ring-1 ring-black/10 transition-transform duration-150 translate-x-0"></span>
+        </button>
+        <button id="mobile-jump-btn" class="w-16 h-16 bg-slate-850/40 border-4 border-slate-600/60 rounded-xl flex items-center justify-center shadow-lg active:scale-90 transition-all select-none" title="점프">
+            <i class="fa-solid fa-arrow-up text-xl text-white/80"></i>
+        </button>
+        <button id="mobile-crouch-btn" class="w-16 h-16 bg-slate-850/40 border-4 border-slate-600/60 rounded-xl flex items-center justify-center shadow-lg active:scale-90 transition-all select-none" title="하강 (비행)">
+            <i class="fa-solid fa-arrow-down text-xl text-white/80"></i>
+        </button>
+    </div>
+
+    <!-- 하단 핫바 (블록 10종 + 지우개) -->
+    <div id="hotbar-wrapper" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-30 w-[95%] max-w-2xl px-2">
+        <div id="hotbar-container" class="bg-slate-850/40 border-4 border-slate-600/60 rounded-xl p-1.5 flex items-center gap-1 shadow-2xl backdrop-blur-xs overflow-hidden pointer-events-auto">
+            <button class="hotbar-slot flex-1 min-w-0 aspect-square rounded-lg border-2 border-slate-600/40 bg-slate-800/10 flex items-center justify-center active:scale-95" data-index="0" data-type="block" data-value="#FF0000" title="빨간색 블록 (1)"><span class="w-[72%] h-[72%] rounded shadow-inner" style="background-color: #FF0000;"></span></button>
+            <button class="hotbar-slot flex-1 min-w-0 aspect-square rounded-lg border-2 border-slate-600/40 bg-slate-800/10 flex items-center justify-center active:scale-95" data-index="1" data-type="block" data-value="#FFA500" title="오렌지색 블록 (2)"><span class="w-[72%] h-[72%] rounded shadow-inner" style="background-color: #FFA500;"></span></button>
+            <button class="hotbar-slot flex-1 min-w-0 aspect-square rounded-lg border-2 border-slate-600/40 bg-slate-800/10 flex items-center justify-center active:scale-95" data-index="2" data-type="block" data-value="#FFFF00" title="노란색 블록 (3)"><span class="w-[72%] h-[72%] rounded shadow-inner" style="background-color: #FFFF00;"></span></button>
+            <button class="hotbar-slot flex-1 min-w-0 aspect-square rounded-lg border-2 border-slate-600/40 bg-slate-800/10 flex items-center justify-center active:scale-95" data-index="3" data-type="block" data-value="#008000" title="초록색 블록 (4)"><span class="w-[72%] h-[72%] rounded shadow-inner" style="background-color: #008000;"></span></button>
+            <button class="hotbar-slot flex-1 min-w-0 aspect-square rounded-lg border-2 border-slate-600/40 bg-slate-800/10 flex items-center justify-center active:scale-95" data-index="4" data-type="block" data-value="#0000FF" title="파란색 블록 (5)"><span class="w-[72%] h-[72%] rounded shadow-inner" style="background-color: #0000FF;"></span></button>
+            <button class="hotbar-slot flex-1 min-w-0 aspect-square rounded-lg border-2 border-slate-600/40 bg-slate-800/10 flex items-center justify-center active:scale-95" data-index="5" data-type="block" data-value="#800080" title="보라색 블록 (6)"><span class="w-[72%] h-[72%] rounded shadow-inner" style="background-color: #800080;"></span></button>
+            <button class="hotbar-slot flex-1 min-w-0 aspect-square rounded-lg border-2 border-slate-600/40 bg-slate-800/10 flex items-center justify-center active:scale-95" data-index="6" data-type="block" data-value="#8B4512" title="갈색 블록 (7)"><span class="w-[72%] h-[72%] rounded shadow-inner" style="background-color: #8B4512;"></span></button>
+            <button class="hotbar-slot flex-1 min-w-0 aspect-square rounded-lg border-2 border-slate-600/40 bg-slate-800/10 flex items-center justify-center active:scale-95" data-index="7" data-type="block" data-value="#FFFFFF" title="흰색 블록 (8)"><span class="w-[72%] h-[72%] rounded shadow-inner border border-slate-300" style="background-color: #FFFFFF;"></span></button>
+            <button class="hotbar-slot flex-1 min-w-0 aspect-square rounded-lg border-2 border-slate-600/40 bg-slate-800/10 flex items-center justify-center active:scale-95" data-index="8" data-type="block" data-value="#808080" title="회색 블록 (9)"><span class="w-[72%] h-[72%] rounded shadow-inner" style="background-color: #808080;"></span></button>
+            <button class="hotbar-slot flex-1 min-w-0 aspect-square rounded-lg border-2 border-slate-600/40 bg-slate-800/10 flex items-center justify-center active:scale-95" data-index="9" data-type="block" data-value="#222222" title="검정색 블록 (0)"><span class="w-[72%] h-[72%] rounded shadow-inner" style="background-color: #222222;"></span></button>
+            <button class="hotbar-slot flex-1 min-w-0 aspect-square rounded-lg border-2 border-slate-600/40 bg-slate-800/10 flex items-center justify-center active:scale-95 relative" data-index="10" data-type="eraser" title="블록 삭제 (-)"><span class="w-[72%] h-[72%] rounded border-[3px] border-red-500 relative overflow-hidden" style="background-color: transparent;"><span class="absolute inset-0 bg-red-500 w-[3px] h-[150%] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rotate-45 shadow-sm"></span></span></button>
+        </div>
+        <p class="text-center text-[10px] text-white/50 font-bold mt-1 pointer-events-none">© 2026 KSMS. All rights reserved.</p>
+    </div>
+</div>
+
+<script src="./libs/three.min.js"></script>
+<script src="./libs/OrbitControls.js"></script>
+<script src="./js/config.js"></script>
+<script src="./js/sfx.js"></script>
+<script src="./js/textures.js"></script>
+<script src="./js/world.js"></script>
+<script src="./js/character.js"></script>
+<script src="./js/storage.js"></script>
+<script src="./js/engine.js"></script>
+<script src="./js/input.js"></script>
+<script src="./js/ui.js"></script>
+<script src="./js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+@import url('../libs/fonts/noto-sans-kr.css');
+
+html, body {
+    height: 100%;
+    height: -webkit-fill-available;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #8bcbf9 !important;
+}
+#game-container {
+    width: 100%;
+    height: 100%;
+    height: -webkit-fill-available;
+    position: relative;
+}
+#game-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+body {
+    font-family: 'Noto Sans KR', 'Noto Sans KR Latin', sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+}
+/* iPad 더블탭 확대 차단: 상단바는 manipulation */
+#top-bar, #top-bar * {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+.hotbar-slot {
+    transition: all 0.15s ease;
+}
+.hotbar-slot.active {
+    border-color: #ffffff !important;
+    transform: scale(1.1);
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
+    z-index: 10;
+}
+/* 줌 슬라이더 커스텀 */
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #f43f5e;
+    cursor: pointer;
+}
+input[type="range"] {
+    outline: none;
+}

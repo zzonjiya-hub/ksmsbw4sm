@@ -1,0 +1,44 @@
+/* Noto Sans KR 로컬 내장 (400/700/900) — 오프라인 대응
+   한글 파일에 없는 영문·숫자는 'Noto Sans KR Latin'으로 글자별 폴백 */
+@font-face {
+  font-family: 'Noto Sans KR';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./korean-400-normal.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Noto Sans KR';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url(./korean-700-normal.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Noto Sans KR';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 900;
+  src: url(./korean-900-normal.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Noto Sans KR Latin';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url(./latin-400-normal.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Noto Sans KR Latin';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url(./latin-700-normal.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Noto Sans KR Latin';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 900;
+  src: url(./latin-900-normal.woff2) format('woff2');
+}
